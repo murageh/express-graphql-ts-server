@@ -2,6 +2,9 @@ import {gql} from "apollo-server";
 import {Incident} from "../data/entity/Incident";
 import {myDataSource} from "../data/app-data-source";
 import {StaffMember} from "../data/entity/StaffMember";
+import {Revenue} from "../data/entity/Revenue";
+import {PatientSatisfaction} from "../data/entity/PatientSatisfaction";
+import {FootFall} from "../data/entity/FootFall";
 
 const typeDefs = gql`
     type Incident {
@@ -18,6 +21,24 @@ const typeDefs = gql`
         nps: Float!
         efficiencyDelta: Float!
         reportedIssues: Int!
+    }
+    
+    type FootFall {
+        id: ID!
+        date: String!
+        value: Float!
+    }
+    
+    type PatientSatisfaction {
+        id: ID!
+        date: String!
+        value: Float!
+    }
+    
+    type Revenue {
+        id: ID!
+        date: String!
+        value: Float!
     }
 
     type Mutation {
@@ -39,6 +60,9 @@ const typeDefs = gql`
 const resolvers = () => {
     const incidentRepository = myDataSource.getRepository(Incident);
     const staffMemberRepository = myDataSource.getRepository(StaffMember);
+    const footFallRepository = myDataSource.getRepository(FootFall);
+    const patientSatisfactionRepository = myDataSource.getRepository(PatientSatisfaction);
+    const revenueRepository = myDataSource.getRepository(Revenue);
 
     return ({
         Mutation: {
@@ -71,6 +95,18 @@ const resolvers = () => {
             staffMembers: async () => {
                 // Fetch staff members from your backend
                 return await staffMemberRepository.find();
+            },
+            footFallData: async () => {
+                const footFallData = await footFallRepository.find();
+                return footFallData.map(entry => entry.value);
+            },
+            patientSatisfactionData: async () => {
+                const patientSatisfactionData = await patientSatisfactionRepository.find();
+                return patientSatisfactionData.map(entry => entry.value);
+            },
+            revenueData: async () => {
+                const revenueData = await revenueRepository.find();
+                return revenueData.map(entry => entry.value);
             },
         },
     });
