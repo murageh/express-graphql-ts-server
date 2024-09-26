@@ -1,0 +1,7 @@
+{
+  "type": "sqlite",
+  "database": "access-afya.db",
+  "synchronize": true,
+  "logging": true,
+  "entities": ["src/data/entity/**/*.ts"]
+}
