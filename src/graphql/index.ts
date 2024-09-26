@@ -22,19 +22,19 @@ const typeDefs = gql`
         efficiencyDelta: Float!
         reportedIssues: Int!
     }
-    
+
     type FootFall {
         id: ID!
         date: String!
         value: Float!
     }
-    
+
     type PatientSatisfaction {
         id: ID!
         date: String!
         value: Float!
     }
-    
+
     type Revenue {
         id: ID!
         date: String!
@@ -71,7 +71,13 @@ const resolvers = () => {
 
                 return await incidentRepository.save(newIncident);
             },
-            createStaffMember: async (_: any, args: { name: string, efficiency: number, nps: number, efficiencyDelta: number, reportedIssues: number }) => {
+            createStaffMember: async (_: any, args: {
+                name: string,
+                efficiency: number,
+                nps: number,
+                efficiencyDelta: number,
+                reportedIssues: number
+            }) => {
                 const newStaffMember = staffMemberRepository.create(args);
 
                 return await staffMemberRepository.save(newStaffMember);
@@ -80,11 +86,11 @@ const resolvers = () => {
         Query: {
             keyMetrics: async () => {
                 // Example: Fetch counts of different incident types
-                const wrongPrescriptionCount = await incidentRepository.count({ where: { incidentType: 'Wrong Prescription' } });
-                const openedLateCount = await incidentRepository.count({ where: { incidentType: 'Opened Late' } });
-                const wrongDiagnosisCount = await incidentRepository.count({ where: { incidentType: 'Wrong Diagnosis' } });
-                const wrongTreatmentCount = await incidentRepository.count({ where: { incidentType: 'Wrong Treatment' } });
-                const wrongSurgeryCount = await incidentRepository.count({ where: { incidentType: 'Wrong Surgery' } });
+                const wrongPrescriptionCount = await incidentRepository.count({where: {incidentType: 'Wrong Prescription'}});
+                const openedLateCount = await incidentRepository.count({where: {incidentType: 'Opened Late'}});
+                const wrongDiagnosisCount = await incidentRepository.count({where: {incidentType: 'Wrong Diagnosis'}});
+                const wrongTreatmentCount = await incidentRepository.count({where: {incidentType: 'Wrong Treatment'}});
+                const wrongSurgeryCount = await incidentRepository.count({where: {incidentType: 'Wrong Surgery'}});
 
                 return [wrongPrescriptionCount, openedLateCount, wrongDiagnosisCount, wrongTreatmentCount, wrongSurgeryCount];
             },

@@ -1,6 +1,6 @@
 // server.ts
-import { ApolloServer } from 'apollo-server';
-import {typeDefs, resolvers} from "./graphql";
+import {ApolloServer} from 'apollo-server';
+import {resolvers, typeDefs} from "./graphql";
 import {myDataSource} from "./data/app-data-source";
 
 myDataSource
@@ -18,7 +18,7 @@ const server = new ApolloServer({
     resolvers: resolvers(),
 });
 
-server.listen().then(({ url }) => {
+server.listen().then(({url}) => {
     console.log(`🚀 Server ready at ${url}`);
 }).catch((err: any) => {
     console.error("Error during server initialization:", err)
