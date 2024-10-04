@@ -51,6 +51,7 @@ This repository contains the backend code for the Access Afya Health Analytics D
 5. **Open the GraphQL Playground:**
 
    Navigate to `http://localhost:4000/graphql` in your browser to access the GraphQL Playground.
+
 6. **Seed the database:**
 
    Run the seed script to populate the database with sample data:
