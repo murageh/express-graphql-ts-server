@@ -11,16 +11,19 @@ const calculateDelta = (current: number, previous: number) => {
 const groupDataByPeriod = (data: any[], period: string) => {
     const groupedData = groupBy(data, (entry) => {
         if (period === '5yrs') {
-            return `${moment(entry.date).format('YYYY')} - ${moment(entry.date).add(5, 'years').format('YYYY')}`;
+            return moment(entry.date).format('YYYY');  // Group by year for 5 years
         }
         if (period === 'year') {
-            return moment(entry.date).format('YYYY');
-        }
-        if (period === 'week') {
-            return `Week ${moment(entry.date).week()} of ${moment(entry.date).format('YYYY')}`;
+            return moment(entry.date).format('MMMM YYYY');  // Group by month for the year
         }
         if (period === 'month') {
-            return moment(entry.date).format('MMMM YYYY');
+            return moment(entry.date).format('YYYY-MM-DD');  // Group by day for the month
+        }
+        if (period === 'week') {
+            return moment(entry.date).format('YYYY-MM-DD');  // Group by day for the week
+        }
+        if (period === 'day') {
+            return moment(entry.date).format('HH:mm');  // Group by hour for the day
         }
         return moment(entry.date).format('YYYY-MM-DD'); // Default to individual dates
     });
@@ -33,7 +36,6 @@ const groupDataByPeriod = (data: any[], period: string) => {
     });
 
     // Calculate overall aggregates
-    // handle cases where there is no data (dataToReturn.length = 0)
     const totalSum = dataToReturn.reduce((acc, curr) => acc + curr, 0);
     const avg = dataToReturn.length > 0 ? totalSum / dataToReturn.length : 0;
     const min = dataToReturn.length > 0 ? Math.min(...dataToReturn) : 0;
@@ -41,7 +43,7 @@ const groupDataByPeriod = (data: any[], period: string) => {
     const count = dataToReturn.length;
 
     // Delta calculation (comparing last sum with second-to-last)
-    const delta = dataToReturn.length < 1 ? 0 :
+    const delta = dataToReturn.length < 2 ? 0 :
         calculateDelta(dataToReturn[dataToReturn.length - 1], dataToReturn[dataToReturn.length - 2]);
 
     const agg = {
