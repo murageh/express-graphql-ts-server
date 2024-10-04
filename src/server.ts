@@ -2,6 +2,7 @@
 import {ApolloServer} from 'apollo-server';
 import {resolvers, typeDefs} from "./graphql";
 import {myDataSource} from "./data/app-data-source";
+const port = process.env.PORT || 4000;
 
 myDataSource
     .initialize()
@@ -19,7 +20,7 @@ const server = new ApolloServer({
     // cache: new InMemoryCache(),
 });
 
-server.listen().then(({url}) => {
+server.listen(port).then(({url}) => {
     console.log(`🚀 Server ready at ${url}`);
 }).catch((err: any) => {
     console.error("Error during server initialization:", err)
