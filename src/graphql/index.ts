@@ -16,7 +16,8 @@ export type Period = 'day' | 'week' | 'month' | 'year' | '5yrs'; // Define a typ
 type FilterArgs = {
     startDate: string | null,
     endDate: string | null,
-    period: Period | null
+    period: Period | null,
+    incidentType: IncidentType | null
 }
 
 const typeDefs = gql`
@@ -75,17 +76,27 @@ const typeDefs = gql`
     type Query {
         keyMetrics: KeyMetrics!
 
-        footFallData(startDate: String, endDate: String, period: String): FilteredData!
-        patientSatisfactionData(startDate: String, endDate: String, period: String): FilteredData!
-        revenueData(startDate: String, endDate: String, period: String): FilteredData!
+        footFallData(startDate: String, endDate: String, period: String, incidentType: String): FilteredData!
+        patientSatisfactionData(startDate: String, endDate: String, period: String, incidentType: String): FilteredData!
+        revenueData(startDate: String, endDate: String, period: String, incidentType: String): FilteredData!
         
         incidents(incidentType: String, startDate: String, endDate: String): [Incident!]!
         staffMembers(sortBy: String, sortOrder: String): [StaffMember!]!
     }
 
+    type Aggregate {
+        sum: Float!
+        avg: Float!
+        min: Float!
+        max: Float!
+        count: Int!
+        delta: Float!
+    }
+
     type FilteredData {
         labels: [String!]!
         data: [Float!]!
+        aggregate: Aggregate!
     }
 `;
 
@@ -96,8 +107,12 @@ const resolvers = () => {
     const patientSatisfactionRepository = myDataSource.getRepository(PatientSatisfaction);
     const revenueRepository = myDataSource.getRepository(Revenue);
 
-    const getWhereClause = (startDate: string|null, endDate: string|null) => {
+    const getWhereClause = (startDate: string|null, endDate: string|null, incidentType?: IncidentType|null) => {
         const whereClause: any = {};
+
+        if (incidentType) {
+            whereClause.incidentType = incidentType;
+        }
         if (startDate) {
             whereClause.date = MoreThanOrEqual(startDate);
         }
@@ -152,19 +167,7 @@ const resolvers = () => {
                 const { incidentType, startDate, endDate } = args;
 
                 // Build the where clause for filtering
-                const whereClause: any = {};
-                if (incidentType) {
-                    whereClause.incidentType = incidentType;
-                }
-                if (startDate) {
-                    whereClause.date = MoreThanOrEqual(startDate);
-                }
-                if (endDate) {
-                    whereClause.date = LessThanOrEqual(endDate);
-                }
-                if (startDate && endDate) {
-                    whereClause.date = Between(startDate, endDate);
-                }
+                const whereClause = getWhereClause(startDate, endDate, incidentType);
 
                 return await incidentRepository.find({ where: whereClause });
             },
