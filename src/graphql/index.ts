@@ -6,11 +6,18 @@ import {Revenue} from "../data/entity/Revenue";
 import {PatientSatisfaction} from "../data/entity/PatientSatisfaction";
 import {FootFall} from "../data/entity/FootFall";
 import {Between, LessThanOrEqual, MoreThanOrEqual} from "typeorm";
-import {groupBy} from "graphql/jsutils/groupBy";
-import moment from 'moment';
 import {INCIDENT_TYPES, IncidentType} from "../data/entity/utils";
+import groupDataByPeriod from "./util";
 
 // type ValidIncidentType = typeof INCIDENT_TYPES[number];
+
+export type Period = 'day' | 'week' | 'month' | 'year' | '5yrs'; // Define a type for the period
+
+type FilterArgs = {
+    startDate: string | null,
+    endDate: string | null,
+    period: Period | null
+}
 
 const typeDefs = gql`
     type Incident {
@@ -129,10 +136,6 @@ const resolvers = () => {
         Query: {
             keyMetrics: async () => {
                 console.log('keyMetrics');
-                // dayta comes in lookinglike:
-                //             Wrong_Prescription_Count
-                //             Opened_Late_Count
-                //             Wrong_Diagnosis_Count, etc
 
                 const keyMetrics: any = {};
                 for (const type of INCIDENT_TYPES) {
@@ -178,42 +181,21 @@ const resolvers = () => {
                 return await staffMemberRepository.find({ order: orderClause });
             },
 
-            footFallData: async (_: any, args: any) => {
-                const { startDate, endDate, period } = args;
+            footFallData: async (_: any, args: FilterArgs) => {
+                const { startDate='', endDate='', period='month' } = args;
 
                 const whereClause = getWhereClause(startDate, endDate);
 
                 const footFallData = await footFallRepository.find({
                     where: whereClause,
-                    order: { date: 'ASC' } // Order by date to ensure correct label order
+                    order: { date: 'ASC' } // Order by date to ensure the correct label order
                 });
 
-                // Group and aggregate data based on the period
-                const groupedData = groupBy(footFallData, (entry) => {
-                    if (period === 'week') {
-                        // Assuming your date field is a Date object
-                        return `Week ${moment(entry.date).week()}`;
-                    } else if (period === 'month') {
-                        return `Month ${moment(entry.date).month() + 1}`;
-                    } else {
-                        // Default to individual dates
-                        return moment(entry.date).format('YYYY-MM-DD');
-                    }
-                });
-
-                // Generate labels and data arrays
-                const labels = Object.keys(groupedData);
-                const data = labels.map(label => {
-                    const entries = groupedData.get(label);
-                    // Aggregate the values for each group (e.g., sum, average)
-                    return entries?.reduce((sum, entry) => sum + entry.value, 0) || -1;
-                });
-
-                return { labels, data };
+                return groupDataByPeriod(footFallData, period!);
             },
 
-            patientSatisfactionData: async (_: any, args: any) => {
-                const { startDate, endDate, period } = args;
+            patientSatisfactionData: async (_: any, args: FilterArgs) => {
+                const { startDate='', endDate='', period='month' } = args;
                 const whereClause = getWhereClause(startDate, endDate);
 
                 const patientSatisfactionData = await patientSatisfactionRepository.find({
@@ -221,52 +203,20 @@ const resolvers = () => {
                     order: { date: 'ASC' }
                 });
 
-                const groupedData = groupBy(patientSatisfactionData, (entry) => {
-                    if (period === 'week') {
-                        return `Week ${moment(entry.date).week()}`;
-                    } else if (period === 'month') {
-                        return `Month ${moment(entry.date).month() + 1}`;
-                    } else {
-                        return moment(entry.date).format('YYYY-MM-DD');
-                    }
-                });
-
-                const labels = Object.keys(groupedData);
-                const data = labels.map(label => {
-                    const entries = groupedData.get(label);
-                    return entries ? entries.reduce((sum, entry) => sum + entry.value, 0) / entries.length : -1; // Calculate average satisfaction
-                });
-
-                return { labels, data };
+                return groupDataByPeriod(patientSatisfactionData, period!);
             },
 
-            revenueData: async (_: any, args: any) => {
-                const { startDate, endDate, period } = args;
+            revenueData: async (_: any, args: FilterArgs) => {
+                const {startDate = '', endDate = '', period = 'month'} = args;
                 const whereClause = getWhereClause(startDate, endDate);
 
                 const revenueData = await revenueRepository.find({
                     where: whereClause,
-                    order: { date: 'ASC' }
+                    order: {date: 'ASC'}
                 });
 
-                const groupedData = groupBy(revenueData, (entry) => {
-                    if (period === 'week') {
-                        return `Week ${moment(entry.date).week()}`;
-                    } else if (period === 'month') {
-                        return `Month ${moment(entry.date).month() + 1}`;
-                    } else {
-                        return moment(entry.date).format('YYYY-MM-DD');
-                    }
-                });
-
-                const labels = Object.keys(groupedData);
-                const data = labels.map(label => {
-                    const entries = groupedData.get(label);
-                    return entries ? entries.reduce((sum, entry) => sum + entry.value, 0) : -1; // Calculate total revenue
-                });
-
-                return { labels, data };
-            },
+                return groupDataByPeriod(revenueData, period!);
+            }
         },
     });
 };
