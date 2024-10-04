@@ -1,6 +1,6 @@
 {
   "type": "sqlite",
-  "database": "access-afya.db",
+  "database": "access-afya.sqlite",
   "synchronize": true,
   "logging": true,
   "entities": [

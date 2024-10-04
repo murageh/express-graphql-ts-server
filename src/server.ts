@@ -16,6 +16,7 @@ myDataSource
 const server = new ApolloServer({
     typeDefs,
     resolvers: resolvers(),
+    // cache: new InMemoryCache(),
 });
 
 server.listen().then(({url}) => {

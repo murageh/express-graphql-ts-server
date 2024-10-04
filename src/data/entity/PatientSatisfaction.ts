@@ -8,6 +8,6 @@ export class PatientSatisfaction {
     @Column()
     date!: Date; // Or string
 
-    @Column()
+    @Column("double precision")
     value!: number;
 }

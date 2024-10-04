@@ -8,13 +8,13 @@ export class StaffMember {
     @Column()
     name!: string;
 
-    @Column()
+    @Column("double precision")
     efficiency!: number;
 
-    @Column()
+    @Column("double precision")
     nps!: number;
 
-    @Column()
+    @Column("double precision")
     efficiencyDelta!: number;
 
     @Column()

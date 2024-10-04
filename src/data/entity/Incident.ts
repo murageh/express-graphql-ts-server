@@ -1,16 +1,17 @@
 import {Column, Entity, PrimaryGeneratedColumn} from "typeorm";
+import {IncidentType} from "./utils";
 
 @Entity()
 export class Incident {
     @PrimaryGeneratedColumn()
     id!: number;
 
-    @Column()
+    @Column("varchar")
     patientName!: string;
 
-    @Column()
-    incidentType!: string;
+    @Column("varchar")
+    incidentType!: IncidentType;
 
-    @Column()
+    @Column("date")
     date!: Date;
 }

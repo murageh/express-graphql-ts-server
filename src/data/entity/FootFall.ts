@@ -8,6 +8,6 @@ export class FootFall {
     @Column()
     date!: Date; // Or string, depending on how you store the time period
 
-    @Column()
+    @Column("double precision")
     value!: number;
 }
